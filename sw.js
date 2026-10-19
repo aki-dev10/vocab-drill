@@ -1,4 +1,5 @@
 // オフライン対応: アプリ本体は通信できるときは最新版を取得して保存、できないときは保存版を使う
+// （ブラウザのキャッシュは使わず毎回サーバーに確かめる。公開直後でも再読み込みで最新版になるように）
 // 音声は大きいので、一度取得したら端末の保存版を使う
 const CACHE = 'vocab-drill-v1';
 const AUDIO = 'vocab-drill-audio-v2'; // 音声を作り直したら番号を上げる（古い音声を捨てる）
@@ -13,7 +14,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(
-    fetch(e.request).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); return r; })
+    fetch(e.request.url, { cache: 'no-cache' }).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); return r; })
       .catch(() => caches.match(e.request, { ignoreSearch: true }).then(r => r || caches.match('./index.html')))
   );
 });
